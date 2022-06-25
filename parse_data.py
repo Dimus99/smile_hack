@@ -8,7 +8,7 @@ res = []
 for file in onlyfiles:
     res_res = []
     with open(f"all_xml/{file}", encoding="cp1251") as f:
-
+        f.writelines()
         xml = f.read()
         print(file)
         if xml:
