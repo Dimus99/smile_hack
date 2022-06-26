@@ -4,9 +4,9 @@ import UploadAndDisplayImage from "./components/UploadAndDisplayImage/UploadAndD
 
 function App() {
   return (
-      <div className='container'>
-          <UploadAndDisplayImage />
-      </div>
+    <div className='container'>
+      <UploadAndDisplayImage/>
+    </div>
   )
 }
 

@@ -1,14 +1,15 @@
 import axios from 'axios'
+import {getBase64} from "../helpers/b64";
 
-const BASE_URL = 'http://localhost:8080'
+const BASE_URL = 'http://localhost:5000'
 
-export const sendPhoto = photo => {
-    console.log(photo);
+export const sendPhoto = async photo => {
     let response
+    const fileBase64 = await getBase64(photo)
+    const data = {img: fileBase64}
     try {
-        response = axios.post(`${BASE_URL}/send_photo`, photo)
+        response = axios.post(`${BASE_URL}/predict`, data)
     } catch (e) {
-        console.log(e)
     }
 
     return response
