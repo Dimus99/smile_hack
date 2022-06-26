@@ -45,3 +45,21 @@
 
   height: 100vh;
 }
+
+@media screen and (max-width: 800px){
+  .container {
+    width: 650px;
+  }
+}
+
+@media screen and (max-width: 800px){
+  .container {
+    width: 800px;
+  }
+}
+
+@media screen and (max-width: 500px){
+  .container {
+    width: 500px;
+  }
+}

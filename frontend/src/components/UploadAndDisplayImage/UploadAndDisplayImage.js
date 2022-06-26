@@ -6,43 +6,74 @@ import Loader from "../Loader/Loader";
 
 
 const UploadAndDisplayImage = () => {
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [fetchedImage, setFetchedImage] = useState(null);
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [fetchedImages, setFetchedImages] = useState([]);
+  const [predict, setPredict] = useState(0);
 
   const [isLoading, setIsLoading] = useState(false)
 
-  const onClick = (photo) => {
+  const sendPhotosHandler = (photos) => {
     setIsLoading(true)
-    sendPhoto(photo).then(r => {
-      console.log(r)
-      setFetchedImage(r)
+    sendPhoto(photos).then(r => {
+      setFetchedImages(r.imgs)
       setIsLoading(false)
-      setSelectedImage(null)
+      setSelectedImages([])
+      setPredict(r.predict)
     })
   }
 
-  if (selectedImage) {
+  if (selectedImages.length && !isLoading) {
     return (
       <div className='image_check'>
-        <div className='image_check__reject' onClick={() => {
-          setSelectedImage(null)
-          setIsLoading(false)
-        }}>x
-        </div>
-        <img className='image_check__img' alt="not fount" width={"500px"} src={URL.createObjectURL(selectedImage)}/>
-        <div className='image_check__accept' onClick={() => onClick(selectedImage)}>Отправить фото</div>
+        {
+          Array.from(Array(selectedImages.length).keys()).map((i) => {
+              const image = selectedImages[i]
+              return (
+                <div>
+                  <div className='image_check__reject' onClick={() => {
+                    setSelectedImages([])
+                  }}>x
+                  </div>
+                  <img className='image_check__img' alt="not fount" width={"500px"}
+                       src={URL.createObjectURL(image)}/>
+                </div>
+              )
+            }
+          )
+        }
+        <div className='image_check__accept' onClick={() => sendPhotosHandler(selectedImages)}>Отправить фото</div>
       </div>
     )
   }
 
-  if (fetchedImage) {
+  if (fetchedImages.length && !isLoading) {
     return (
       <div className='image_check'>
-        <div className='image_check__reject' onClick={() => {
-          setFetchedImage(null)
-        }}>x
+
+        {
+          Array.from(Array(fetchedImages.length).keys()).map((i) => {
+              const image = fetchedImages[i]
+              return (
+                <div>
+                  <div className='image_check__reject' onClick={() => {
+                    setFetchedImages([])
+                  }}>x
+                  </div>
+                  <img className='image_check__img' alt="not fount" width={"500px"}
+                       src={URL.createObjectURL(image)}/>
+                </div>
+              )
+            }
+          )
+        }
+        <div className="predict">
+          {
+            predict <= 30
+            ? 'Кариес не обнаружен, но не забывайте о профилактических осмотрах!'
+            : `Мы уверены на ${predict}%, что вам стоит обратиться к стоматологу.`
+          }
         </div>
-        <img className='image_check__img' alt="not fount" width={"500px"} src={URL.createObjectURL(fetchedImage)}/>
+
       </div>
     )
   }
@@ -61,9 +92,10 @@ const UploadAndDisplayImage = () => {
         className='input_file'
         type="file"
         name="photo"
+        multiple
         id="upload-photo"
         onChange={(event) => {
-          setSelectedImage(event.target.files[0]);
+          setSelectedImages(event.target.files);
         }}
       />
     </>
