@@ -1,8 +1,10 @@
 import base64
+from flask_cors import CORS
 
 from flask import Flask, make_response, request
 
 app = Flask(__name__)
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
 
 @app.route('/')
@@ -17,6 +19,7 @@ def predict():
     if not imgb64:
         return "No image", 400
     try:
+        print(request.data)
         img = base64.b64decode(str(imgb64))
     except Exception as e:
         return f"bad decode image, {e}", 500
