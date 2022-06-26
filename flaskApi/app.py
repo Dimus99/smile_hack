@@ -1,12 +1,9 @@
 import base64
-
-import cv2
-import numpy as np
 from flask_cors import CORS
-import cv.darknet.darknet as darknet
-from cv.darknet.darknet_images import image_detection
 
 from flask import Flask, request
+
+from utils import get_img
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
@@ -19,37 +16,30 @@ def hello_world():  # put application's code here
 
 @app.route('/predict', methods=["POST"])
 def predict():
-    key = "img"
-    imgb64 = request.json.get(key)
-    b64_prefix = request.json.get("b64_prefix")
-    if not imgb64:
-        return "No image", 400
-    try:
-        img = base64.b64decode(str(imgb64))
-    except Exception as e:
-        return f"bad decode image, {e}", 500
-    res_img, predict = get_predict(img)
-    return {"img": str(b64_prefix)+"," + str(res_img)[2:-1], "predict": predict}
+    key = "imgs"
+    imgs = request.json.get(key)
+    res_predict = 0.0
+    res_imgs = []
+    for t in imgs:
+        b64_prefix = t[0]
+        imgb64 = t[1]
+        if not imgb64:
+            return "No image", 400
+        try:
+            img = base64.b64decode(str(imgb64))
+        except Exception as e:
+            return f"bad decode image, {e}", 500
+        res_img, prediction = get_predict(img, b64_prefix)
+        res_imgs.append(res_img)
+        res_predict = max(res_predict, prediction)
+    return {"imgs": res_imgs, "predict": res_predict}
 
 
-def get_predict(img):
-    image = np.frombuffer(img, dtype=np.uint8)
-    image = cv2.imdecode(image, flags=1)
-    img_res, a = image_detection(
-        image,
-        network,
-        classes,
-        colors,
-        0.3
-    )
-    cv2.imwrite("./0.jpg", img_res)
-    with open("0.jpg", 'rb') as f:
-        image_to_return = f.read()
+def get_predict(img, b64_prefix):
+    image_to_return, prediction = get_img(img)
 
-    return base64.b64encode(image_to_return), 0.8
+    return str(b64_prefix) + "," + str(base64.b64encode(image_to_return))[2:-1], prediction
 
 
 if __name__ == '__main__':
-    network, classes, colors = darknet.load_network('cv/darknet/cfg/yolov4-custom.cfg', 'cv/darknet/data/obj.data',
-                                                    'cv/yolov4-custom_last.weights', 1)
     app.run()
