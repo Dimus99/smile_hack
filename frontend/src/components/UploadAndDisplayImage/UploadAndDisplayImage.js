@@ -7,15 +7,18 @@ import Loader from "../Loader/Loader";
 
 const UploadAndDisplayImage = () => {
   const [selectedImage, setSelectedImage] = useState(null);
+  const [fetchedImage, setFetchedImage] = useState(null);
 
   const [isLoading, setIsLoading] = useState(false)
 
   const onClick = (photo) => {
     setIsLoading(true)
-    let res
-    sendPhoto(photo).then(r => res = r)
-    setIsLoading(false)
-    setSelectedImage(null)
+    sendPhoto(photo).then(r => {
+      console.log(r)
+      setFetchedImage(r)
+      setIsLoading(false)
+      setSelectedImage(null)
+    })
   }
 
   if (selectedImage) {
@@ -24,9 +27,22 @@ const UploadAndDisplayImage = () => {
         <div className='image_check__reject' onClick={() => {
           setSelectedImage(null)
           setIsLoading(false)
-        }}>x</div>
+        }}>x
+        </div>
         <img className='image_check__img' alt="not fount" width={"500px"} src={URL.createObjectURL(selectedImage)}/>
         <div className='image_check__accept' onClick={() => onClick(selectedImage)}>Отправить фото</div>
+      </div>
+    )
+  }
+
+  if (fetchedImage) {
+    return (
+      <div className='image_check'>
+        <div className='image_check__reject' onClick={() => {
+          setFetchedImage(null)
+        }}>x
+        </div>
+        <img className='image_check__img' alt="not fount" width={"500px"} src={URL.createObjectURL(fetchedImage)}/>
       </div>
     )
   }
@@ -50,7 +66,6 @@ const UploadAndDisplayImage = () => {
           setSelectedImage(event.target.files[0]);
         }}
       />
-
     </>
   );
 };
